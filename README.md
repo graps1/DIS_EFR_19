@@ -2,6 +2,14 @@
 
 Hier kann die Implementation des DIS für die Saison 18/19 gefunden werden. 
 
+## Zielstellung
+Grundsätzlich soll...
+
+* mindestens die Funktionalität des DIS aus der letztes Saison bestehen bleiben.
+* ausführliches Refactoring vorgenommen- & die Menüführung deutlich strukturierter und einfacher gestalten werden.
+* es leicht sein, die Reihenfolge der Menüs zu vertauschen, deren Struktur umzustellen oder diese beliebig zu verschachteln.
+* ein "Push"-System entwickelt werden, mit dem am Ende wichtige Ereignisse (Fehler, Grenzwertüberschreitungen etc.) direkt sichtbar gemacht werden.
+
 ## Menüführung
 Die Menüs sind mit Hilfe einer Baumstruktur erstellt worden. Jedes Menü hat eine Referenz auf das 
 erste Untermenü, auf seinen Nachbarn (Menüs der gleichen Rangordnung) und auf das Obermenü. Sonderfälle, z.B. dass kein Untermenü,
