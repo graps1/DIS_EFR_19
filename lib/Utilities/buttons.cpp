@@ -2,7 +2,17 @@
 
 namespace buttons {
 
-
+void initButtons() {
+	pinMode(Button_1, INPUT_PULLUP);
+	pinMode(Button_2, INPUT_PULLUP);
+	pinMode(Button_3, INPUT_PULLUP);
+	pinMode(Button_4, INPUT_PULLUP);
+	pinMode(Button_5, INPUT_PULLUP);
+	pinMode(Button_6, INPUT_PULLUP);
+	pinMode(Button_HV, INPUT_PULLUP);
+	pinMode(Button_Reku, INPUT_PULLUP);
+	pinMode(Button_Start, INPUT_PULLUP);
+}
 
 void updateButtonStates(
 	ButtonsToBit* buttons, 

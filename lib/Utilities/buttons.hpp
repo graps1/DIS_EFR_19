@@ -29,6 +29,8 @@ union ButtonsToBit {
 	};
 };
 
+void initButtons();
+
 void updateButtonStates(
 	ButtonsToBit* buttons, 
 	ButtonsToBit* buttons_up, 
