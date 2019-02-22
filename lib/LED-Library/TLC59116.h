@@ -12,7 +12,7 @@ class TLC59116 {
   public:
     TLC59116(uint8_t addr);
     void init(void);
-    void setStates(uint8_t Drive_LED, uint8_t SC_LED, uint8_t Reku_LED, bool VCU_LED, int periodendauer);
+    void setStates(uint8_t Drive_LED, uint8_t Reku_LED, bool VCU_LED, int periodendauer);
     bool error;
 
   private:

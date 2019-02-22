@@ -40,10 +40,9 @@ void TLC59116::init(void){
   Wire.endTransmission();
 }
 
-void TLC59116::setStates(uint8_t Drive_LED, uint8_t SC_LED, uint8_t Reku_LED, bool VCU_LED, int periodendauer){
+void TLC59116::setStates(uint8_t Drive_LED, uint8_t Reku_LED, bool VCU_LED, int periodendauer){
   uint8_t ledOut0 = 0b00000000;
   ledOut0 |= Drive_LED;
-  ledOut0 |= SC_LED << 2;
   ledOut0 |= Reku_LED << 4;
   ledOut0 |= VCU_LED << 6;
 
