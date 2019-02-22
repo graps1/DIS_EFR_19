@@ -8,9 +8,10 @@
 
 #define ADDR_LEDs 96
 
-Metro timer_display = Metro(1000);
+Metro timer_display = Metro(100), timer_dis_can = Metro(5); 
 menu::Menu* currentMenu;
 TLC59116 leds = TLC59116(ADDR_LEDs);
+CAN::VehicleState current_vehicle_state;
 
 #pragma region MENU_DEFINITION
 
@@ -20,41 +21,6 @@ menu::Menu mainMenu([] {
 }, [] {
 	return menu::SelectType::FirstChild;
 });
-
-menu::Menu submenu1([] { 
-	String content[4] = { "hallo", "welt", "das ist", "das untermenu 1" };
-	display::setContent(content, 4);
-}, [] {
-	return menu::SelectType::FirstChild; 
-}, &mainMenu);
-
-menu::Menu submenu11([] { 
-	String content[4] = { "hallo", "welt", "das ist", "das untermenu 11" };
-	display::setContent(content, 4);
-}, [] {
-	return menu::SelectType::Root; 
-}, &submenu1);
-
-menu::Menu submenu0([] { 
-	String content[4] = { "hallo", "welt", "das ist", "das untermenu 0" };
-	display::setContent(content, 4);
-}, [] {
-	return menu::SelectType::FirstChild; 
-}, &mainMenu);
-
-menu::Menu submenu01([] { 
-	String content[4] = { "hallo", "welt", "das ist", "das untermenu 01" };
-	display::setContent(content, 4);
-}, [] {
-	return menu::SelectType::Root; 
-}, &submenu0);
-
-menu::Menu submenu02([] { 
-	String content[4] = { "hallo", "welt", "das ist", "das untermenu 02" };
-	display::setContent(content, 4);
-}, [] {
-	return menu::SelectType::Root; 
-}, &submenu0);
 
 #pragma endregion
 
@@ -71,14 +37,18 @@ void setup() {
 
 void loop()
 {
-	if (timer_display.check()) {
+	current_vehicle_state = CAN::check();
 
+	if (timer_display.check()) {
 		// change the menu if a specific button was pressed
 		currentMenu = currentMenu->update();
 		// update the displays content from the selected menu
 		currentMenu->display();
 		// write new content to screen
 		display::updateScreen();
-		
+	}
+
+	if (timer_dis_can.check()) {
+		CAN::sendStatus();
 	}
 }
