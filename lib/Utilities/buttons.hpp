@@ -10,6 +10,8 @@
 #define Button_4 5
 #define Button_5 6
 #define Button_6 13
+#define Poti_1 14
+#define Poti_2 15
 
 namespace buttons {
 
@@ -30,6 +32,9 @@ union ButtonsToBit {
 };
 
 void initButtons();
+
+ButtonsToBit getCurrentState();
+uint16_t getPoti(uint8_t poti);
 
 void updateButtonStates(
 	ButtonsToBit* buttons, 
