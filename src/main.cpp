@@ -8,7 +8,10 @@
 
 #define ADDR_LEDs 96
 
-Metro timer_display = Metro(100), timer_dis_can = Metro(5); 
+Metro	timer_display = Metro(100), 
+		timer_dis_can = Metro(5),
+		timer_dis_param_can = Metro(100);
+
 menu::Menu* currentMenu;
 TLC59116 leds = TLC59116(ADDR_LEDs);
 CAN::VehicleState current_vehicle_state;
@@ -48,7 +51,9 @@ void loop()
 		display::updateScreen();
 	}
 
-	if (timer_dis_can.check()) {
+	if (timer_dis_can.check())
 		CAN::sendStatus();
-	}
+
+	if (timer_dis_param_can.check() && CAN::paramChanged())
+			CAN::sendParam();
 }
