@@ -3,8 +3,12 @@
 namespace CAN
 {
 
-VehicleState interpret(CAN_message_t receivedMsg)
+FlexCAN can = FlexCAN(1000000);
+VehicleState state;
+
+VehicleState check()
 {
+    CAN_message_t receivedMsg;
     if (!can.available())
         return state;
 
@@ -12,11 +16,14 @@ VehicleState interpret(CAN_message_t receivedMsg)
 
     switch (receivedMsg.id)
     {
+    case 0x22:
+        parseSSBFReku(receivedMsg, state);
+        break;
     case 0x101:
         parseAmsMsg(receivedMsg, state);
         break;
     case 0x51:
-        parseVCUControlsMsg(receivedMsg, state);
+        parseVCUControlsMsg(receivedMsg, state); // wurde angepasst
         break;
     case 0x33:
         parseGps(receivedMsg, state);
@@ -25,13 +32,13 @@ VehicleState interpret(CAN_message_t receivedMsg)
         parseEmVlt(receivedMsg, state);
         break;
     case 0x132:
-        parseSSBR(receivedMsg, state); // not yet implemented
+        parseSSBR(receivedMsg, state);
         break;
     case 0x143:
         parseGpsOdo(receivedMsg, state);
         break;
     case 0x201:
-        parsePDU(receivedMsg, state); // not yet implemented
+        parsePDU(receivedMsg, state);
         break;
     case 0x210:
         parseVCUParam(receivedMsg, state);
@@ -52,6 +59,101 @@ VehicleState interpret(CAN_message_t receivedMsg)
     return state;
 }
 
+void sendStatus()
+{
+}
+
+#pragma region MESSAGE_INTERPRETATION
+
+void parseVCUINV(CAN_message_t &receivedMsg, VehicleState &state)
+{
+    state.sys_ready1 = (receivedMsg.buf[0] & 0b10000000) >> 7;
+    state.quit_hv1 = (receivedMsg.buf[0] & 0b01000000) >> 6;
+    state.quit_rf1 = (receivedMsg.buf[0] & 0b00100000) >> 5;
+    state.warn_inv1 = (receivedMsg.buf[0] & 0b00010000) >> 4;
+    state.sys_ready2 = (receivedMsg.buf[0] & 0b00001000) >> 3;
+    state.quit_hv2 = (receivedMsg.buf[0] & 0b00000100) >> 2;
+    state.quit_rf2 = (receivedMsg.buf[0] & 0b00000010) >> 1;
+    state.warn_inv2 = receivedMsg.buf[0] & 0b00000001;
+    state.sys_ready3 = (receivedMsg.buf[1] & 0b10000000) >> 7;
+    state.quit_hv3 = (receivedMsg.buf[1] & 0b01000000) >> 6;
+    state.quit_rf3 = (receivedMsg.buf[1] & 0b00100000) >> 5;
+    state.warn_inv3 = (receivedMsg.buf[1] & 0b00010000) >> 4;
+    state.sys_ready4 = (receivedMsg.buf[1] & 0b00001000) >> 3;
+    state.quit_hv4 = (receivedMsg.buf[1] & 0b00000100) >> 2;
+    state.quit_rf4 = (receivedMsg.buf[1] & 0b00000010) >> 1;
+    state.warn_inv4 = receivedMsg.buf[1] & 0b00000001;
+    state.diagnosis_inv_1 = (receivedMsg.buf[2] << 4) + ((receivedMsg.buf[3] & 0b11110000) >> 4);
+    state.diagnosis_inv_2 = ((receivedMsg.buf[3] & 0b00001111) << 8) + receivedMsg.buf[4];
+    state.diagnosis_inv_3 = (receivedMsg.buf[5] << 4) + ((receivedMsg.buf[6] & 0b11110000) >> 4);
+    state.diagnosis_inv_4 = ((receivedMsg.buf[6] & 0b00001111) << 8) + receivedMsg.buf[7];
+}
+
+void parseVCUTemps(CAN_message_t &receivedMsg, VehicleState &state)
+{
+    state.temp_mot_fr = receivedMsg.buf[0] - 20;
+    state.temp_mot_fl = receivedMsg.buf[1] - 20;
+    state.temp_mot_rr = receivedMsg.buf[2] - 20;
+    state.temp_mot_rl = receivedMsg.buf[3] - 20;
+    state.temp_inv_fr = receivedMsg.buf[4] - 20;
+    state.temp_inv_fl = receivedMsg.buf[5] - 20;
+    state.temp_inv_rr = receivedMsg.buf[6] - 20;
+    state.temp_inv_rl = receivedMsg.buf[7] - 20;
+}
+
+void parseVCUParam(CAN_message_t &receivedMsg, VehicleState &state)
+{
+    state.torque_lim_pos = 0.1 * receivedMsg.buf[0];
+    state.torque_lim_neg = 0.1 * receivedMsg.buf[1];
+    state.power_lim = receivedMsg.buf[2];
+    state.rpm_lim = (receivedMsg.buf[3] << 8) + receivedMsg.buf[4];
+    state.accel_slip = receivedMsg.buf[5];
+    state.brake_slip = receivedMsg.buf[6];
+    state.vehicle_mode = (receivedMsg.buf[7] & 0b11100000) >> 5;
+    state.asr = (receivedMsg.buf[7] & 0b00010000) >> 4;
+    state.bsr = (receivedMsg.buf[7] & 0b00001000) >> 3;
+    state.tv = (receivedMsg.buf[7] & 0b00000100) >> 2;
+    state.energy_save = (receivedMsg.buf[7] & 0b00000010) >> 1;
+    state.drs = receivedMsg.buf[7] & 0b00000001;
+}
+
+void parsePDU(CAN_message_t &receivedMsg, VehicleState &state)
+{
+    state.f_fan_inv = (receivedMsg.buf[2] & 0b1) || ((receivedMsg.buf[2] & 0b10) >> 1);
+    state.f_drs = (receivedMsg.buf[2] & 0b01000000) >> 6;
+    state.f_fan_mot = (receivedMsg.buf[2] & 0b10000000) >> 7;
+    state.f_swimming_angle = (receivedMsg.buf[1] & 0b1);
+    state.f_rtds = (receivedMsg.buf[1] & 0b10000) >> 4;
+    state.f_brakelight = (receivedMsg.buf[1] & 0b100000) >> 5;
+    state.f_pump_mot = (receivedMsg.buf[0] & 0b1);
+    state.f_ssb = (receivedMsg.buf[0] & 0b10) >> 1;
+    state.f_imd = (receivedMsg.buf[0] & 0b100) >> 2;
+    state.f_inv = (receivedMsg.buf[0] & 0b1000) >> 3;
+    state.f_vcu = (receivedMsg.buf[0] & 0b100000) >> 5;
+    state.f_sc = (receivedMsg.buf[0] & 0b1000000) >> 6;
+    state.imd_state = (receivedMsg.buf[4] & 0b11100000) >> 5;
+    state.iso_resistance = (receivedMsg.buf[5] << 8) + receivedMsg.buf[6];
+}
+
+void parseSSBFReku(CAN_message_t &receivedMsg, VehicleState &state)
+{
+    state.sc_after_bots = receivedMsg.buf[2] & 0b00000001;
+    state.reku_brakeforce = (receivedMsg.buf[0] << 8) + receivedMsg.buf[1]; // Kalibrierung fehlt!
+}
+
+void parseSSBR(CAN_message_t &receivedMsg, VehicleState &state)
+{
+    state.temp_inv_high = (receivedMsg.buf[0] << 4) + (receivedMsg.buf[1] >> 4);        // Kalibrierung fehlt!
+    state.temp_inv_low = ((receivedMsg.buf[1] & 0b00001111) << 4) + receivedMsg.buf[2]; // Kalibrierung fehlt!
+    // Bei den folgenden Drei werden nur boolsche Werte ausgelesen,
+    // allerdings unklar welches bit jetzt wo ist, da in der CAN-Übersicht
+    // das komplette Byte als "Inhalt" markiert ist.
+    state.sc_after_tsms = receivedMsg.buf[3];
+    state.sc_after_bspd = receivedMsg.buf[4];
+    state.sc_after_sbright = receivedMsg.buf[5];
+    state.temp_ambient = (receivedMsg.buf[6] << 8) + receivedMsg.buf[7]; // Kalibrierung fehlt!
+}
+
 void parseAmsMsg(CAN_message_t &receivedMsg, VehicleState &state)
 {
     state.ams_state = (receivedMsg.buf[0] & 0b11100000) >> 5;
@@ -66,9 +168,9 @@ void parseAmsMsg(CAN_message_t &receivedMsg, VehicleState &state)
 
 void parseVCUControlsMsg(CAN_message_t &receivedMsg, VehicleState &state)
 {
-    state.reku_state = (receivedMsg.buf[1] & 0b00100000) >> 5;
-    state.vehicle_state = (receivedMsg.buf[1] & 0b11000000) >> 6;
-    state.config_lock = (receivedMsg.buf[1] & 0b00010000) >> 4;
+    state.reku_state = (receivedMsg.buf[1] & 0b00000010) >> 1;
+    state.vehicle_state = (receivedMsg.buf[1] & 0b00001100) >> 2;
+    state.config_lock = (receivedMsg.buf[1] & 0b00000001);
 }
 
 void parseGps(CAN_message_t &receivedMsg, VehicleState &state)
@@ -87,22 +189,6 @@ void parseEmVlt(CAN_message_t &receivedMsg, VehicleState &state)
 void parseGpsOdo(CAN_message_t &receivedMsg, VehicleState &state)
 {
     state.odometer = 0.1 * (receivedMsg.buf[0] + receivedMsg.buf[1]);
-}
-
-void parseVCUParam(CAN_message_t &receivedMsg, VehicleState &state)
-{
-    state.torque_lim_pos = 0.1 * receivedMsg.buf[0];
-    state.torque_lim_neg = 0.1 * receivedMsg.buf[1];
-    state.power_lim = receivedMsg.buf[2];
-    state.rpm_lim = (receivedMsg.buf[3] << 8) + receivedMsg.buf[4];
-    state.accel_slip = receivedMsg.buf[5];
-    state.brake_slip = receivedMsg.buf[6];
-    state.vehicle_mode = (receivedMsg.buf[7] & 0b11100000) >> 5;
-    state.asr = (receivedMsg.buf[7] & 0b00010000) >> 4;
-    state.bsr = (receivedMsg.buf[7] & 0b00001000) >> 3;
-    state.tv = (receivedMsg.buf[7] & 0b00000100) >> 2;
-    state.energy_save = (receivedMsg.buf[7] & 0b00000010) >> 1;
-    state.drs = receivedMsg.buf[7] & 0b00000001;
 }
 
 void parseVCUErrors(CAN_message_t &receivedMsg, VehicleState &state)
@@ -135,5 +221,7 @@ void parseVCUErrors(CAN_message_t &receivedMsg, VehicleState &state)
     state.rot_z = (receivedMsg.buf[3] & 0b00100000) >> 5;
     state.gps_v = (receivedMsg.buf[3] & 0b00010000) >> 4;
 }
+
+#pragma endregion
 
 } // namespace CAN
