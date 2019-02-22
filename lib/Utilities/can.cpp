@@ -1,10 +1,59 @@
 #include "can.hpp"
+#include "buttons.hpp"
 
 namespace CAN
 {
 
 FlexCAN can = FlexCAN(1000000);
 VehicleState state;
+CAN_filter_t    ams_f, 
+                VCUcontrol_f, 
+                Gps_f, 
+                EmVlt_f, 
+                SSBR_f, 
+                GpsOdo_f, 
+                PDU_f, 
+                VCUtoDIS_f, 
+                mask;
+                
+CAN_message_t   dis,
+                dis_parameter;
+
+void init() {
+    // CAN Filter setzen
+    mask.id = 0xFF3;
+
+    // Nachrichten Filter
+    ams_f.id = 0x101;
+    VCUcontrol_f.id = 0x51;
+    Gps_f.id = 0x33;
+    EmVlt_f.id = 0x112;
+    SSBR_f.id = 0x132;
+    GpsOdo_f.id = 0x143;
+    PDU_f.id = 0x201;
+    VCUtoDIS_f.id = 0x210;
+
+
+    dis.id = 0x41;
+    dis.len = 4;
+    dis.timeout = 5;
+
+    dis_parameter.id = 0x301;
+    dis_parameter.len = 8;
+    dis_parameter.timeout = 100;
+
+    can.begin(mask);
+
+    // CanFilter setzen (0-7)
+    can.setFilter(ams_f, 0);
+    can.setFilter(VCUcontrol_f, 1);
+    can.setFilter(Gps_f, 2);
+    can.setFilter(EmVlt_f, 3);
+    can.setFilter(SSBR_f, 4);
+    can.setFilter(GpsOdo_f, 5);
+    can.setFilter(PDU_f, 6);
+    can.setFilter(VCUtoDIS_f, 7);
+}
 
 VehicleState check()
 {
@@ -59,8 +108,23 @@ VehicleState check()
     return state;
 }
 
+bool paramChanged() {
+    // todo
+    return false;
+}
+
+void sendParam() {
+    // todo
+}
+
 void sendStatus()
 {
+    buttons::ButtonsToBit current_button_state = buttons::getCurrentState();
+    dis.buf[0] = buttons::getPoti(2);
+    dis.buf[1] = buttons::getPoti(1);
+    dis.buf[2] = current_button_state.buf >> 1;
+    dis.buf[3] = current_button_state.buf << 7;
+    can.write(dis);
 }
 
 #pragma region MESSAGE_INTERPRETATION

@@ -73,5 +73,8 @@ void parseVCUTemps(CAN_message_t &receivedMsg, VehicleState &state);
 
 VehicleState check();
 void sendStatus();
+void init();
+bool paramChanged();
+void sendParam();
 
 } // namespace CAN
