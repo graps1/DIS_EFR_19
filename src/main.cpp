@@ -19,11 +19,14 @@ CAN::VehicleState cvs;
 #pragma region MENU_DEFINITION
 
 menu::Menu mainMenu([] {
+	String 	soc = String(cvs.soc) + "%",
+			voltage = String(cvs.voltage) + "V";
+
 	display::setContent(
 		"Main",
-		cvs.vehicle_mode.str(),
-		cvs.ams_state.str(),
-		display::fit(cvs.soc.str(), cvs.voltage.str())
+		cvs.vehicle_mode,
+		cvs.ams_state,
+		display::fit(cvs.soc, voltage)
 	);
 });
 

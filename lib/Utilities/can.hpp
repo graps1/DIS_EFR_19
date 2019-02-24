@@ -1,57 +1,103 @@
 #pragma once
 
 #include "FlexCAN.h"
-#include "descriptable.hpp"
 
 namespace CAN
 {
 
-typedef Descriptable<uint32_t> DUINT;
-typedef Descriptable<float> DFLOAT;
-typedef Descriptable<bool> DBOOL;
-typedef Descriptable<int> DINT;
-typedef Descriptable<String> DSTR;
+struct Inverter
+{
+      bool  sys_ready, 
+            quit_hv, 
+            quit_rf, 
+            warn, 
+            can_fail;
+      float temp_inv, temp_mot;
+      uint32_t diagnosis;
+};
+
+
+union Failure {
+      uint32_t buf;
+      struct {
+            char can_pedals : 1; 
+            char can_reku : 1; 
+            char can_gps : 1;
+            char can_acc : 1;
+            char can_rot : 1;
+            char can_mag : 1;
+            char can_rear : 1;
+            char can_ams : 1;
+            char can_em : 1;
+            char can_pdu : 1;
+            char can_dis : 1;
+            char impl_pedals : 1;
+            char impl_apps : 1;
+            char apps1 : 1;
+            char apps2 : 1;
+            char bps_f : 1;
+            char bps_r : 1;
+            char brakeforce : 1;
+            char steer_angle : 1;
+            char acc_x : 1;
+            char acc_y : 1;
+            char rot_z : 1;
+            char gps_v : 1;
+      };
+};
+
+union SC {
+      uint8_t buf;
+      struct {
+            char state : 1;
+            char after_bots : 1;
+            char after_tsms : 1;
+            char after_sb_right : 1;
+            char after_bspd : 1;
+      };
+};
+
+union Fuses
+{
+      uint16_t buf;
+      struct {
+            char sc : 1;
+            char inv : 1;
+            char imd : 1;
+            char vcu : 1;
+            char ssb : 1;
+            char rtds : 1;
+            char drs : 1;
+            char pump_mot : 1;
+            char fan_mot : 1;
+            char pump_inv : 1;
+            char fan_inv : 1; 
+            char swimming_angle : 1;
+            char brakelight : 1;
+      };
+};
+
+
 
 struct VehicleState
 {
-      DSTR vehicle_state = DSTR("Vehicle State"), ams_state = DSTR("AMS State"), imd_state = DSTR("IMD State");
-      DUINT HDOP = DUINT("HDOP"), qual_fix = DUINT("Quality of Fix"), sattelites = DUINT("No. Sattelites"),
-            vehicle_mode = DUINT("Vehicle Mode"), reku_brakeforce = DUINT("Reku Brakeforce"),
-            diagnosis_inv_1 = DUINT("Diagnosis Inv 1"), diagnosis_inv_2 = DUINT("Diagnosis Inv 2"),
-            diagnosis_inv_3 = DUINT("Diagnosis Inv 3"), diagnosis_inv_4 = DUINT("Diagnosis Inv 4");
-      DFLOAT soc = DFLOAT("SOC"), accu_vlt = DFLOAT("Voltage"), cell_vlt_low = DFLOAT("Voltage Low"),
-             cell_vlt_high = DFLOAT("Voltage High"), cell_temp_low = DFLOAT("Cell Temp. Low"),
-             cell_temp_high = DFLOAT("Cell Temp. High"), voltage = DFLOAT("Voltage"),
-             temp_mot_high = DFLOAT("Temp. Motor High"), temp_mot_low = DFLOAT("Temp. Motor Low"),
-             temp_inv_high = DFLOAT("Temp. Inverter High"), temp_inv_low = DFLOAT("Temp. Inverter Low"),
-             temp_ambient = DFLOAT("Temp. Ambient"), odometer = DFLOAT("Odometer"), iso_resistance = DFLOAT("Iso. Widerstand"),
-             torque_lim_pos = DFLOAT("Torque Limit Pos."), torque_lim_neg = DFLOAT("Torque Limit Neg."), power_lim = DFLOAT("Power Limit"),
-             rpm_lim = DFLOAT("RPM Limit"), accel_slip = DFLOAT("Accel Slip"), brake_slip = DFLOAT("Brake Slip"),
-             temp_inv_fr = DFLOAT("Temp. Inverter FR"), temp_inv_fl = DFLOAT("Temp. Inverter FL"),
-             temp_inv_rr = DFLOAT("Temp. Inverter RR"), temp_inv_rl = DFLOAT("Temp. Inverter RL"),
-             temp_mot_fr = DFLOAT("Temp. Mot. FR"), temp_mot_fl = DFLOAT("Temp. Mot. FL"),
-             temp_mot_rr = DFLOAT("Temp. Mot. RR"), temp_mot_rl = DFLOAT("Temp. Mot. FR");
-      DBOOL sc_state = DBOOL("SC State"), reku_state = DBOOL("Reku State"), config_lock = DBOOL("Config Lock"),
-            f_sc = DBOOL("Fuse SC Latching"), f_inv = DBOOL("Fuse Inverter"), f_imd = DBOOL("Fuse IMD"),
-            f_vcu = DBOOL("Fuse VCU"), f_ssb = DBOOL("Fuse SSB"), f_rtds = DBOOL("Fuse RTDS"), f_drs = DBOOL("Fuse DRS"),
-            f_pump_mot = DBOOL("Fuse Pump Motor"), f_fan_mot = DBOOL("Fuse Fan Motor"), f_pump_inv = DBOOL("Fuse Pump Inverter"),
-            f_fan_inv = DBOOL("Fuse Fan Inverter"), asr = DBOOL("ASR"), bsr = DBOOL("BSR"),
-            tv = DBOOL("TV"), energy_save = DBOOL("Energy Save"), drs = DBOOL("DRS"),
-            can_pedals = DBOOL("CAN Fail Pedals"), can_reku = DBOOL("CAN Fail Reku"), can_gps = DBOOL("CAN Fail GPS"), can_acc = DBOOL("CAN Fail Acc"),
-            can_rot = DBOOL("CAN Fail Rot"), can_mag = DBOOL("CAN Fail Mag"), can_rear = DBOOL("CAN Fail Rear"),
-            can_ams = DBOOL("CAN Fail AMS"), can_em = DBOOL("CAN Fail EM"), can_pdu = DBOOL("CAN Fail PDU"),
-            can_dis = DBOOL("CAN Fail DIS"), can_inv_fr = DBOOL("CAN Fail Inv FR"), can_inv_fl = DBOOL("CAN Fail Inv FL"),
-            can_inv_rr = DBOOL("CAN Fail Inv RR"), can_inv_rl = DBOOL("CAN Fail Inv RL"), pedals_impl = DBOOL("Pedal Implausibility"),
-            apps_impl = DBOOL("APPS Implausibility"), apps1 = DBOOL("APPS1 Fail"), apps2 = DBOOL("APPS2 Fail"), bps_f = DBOOL("BPS Front Fail"),
-            bps_r = DBOOL("BPS Rear Fail"), brakeforce = DBOOL("Brakeforce Fail"), steer_angle = DBOOL("Steering Angle Implausibility"),
-            acc_x = DBOOL("Acc X Implausibility"), acc_y = DBOOL("Acc Y Implausibility"), rot_z = DBOOL("Rot Z Implausibility"),
-            gps_v = DBOOL("GPS Velocity Implausibility"), sc_after_bots = DBOOL("SC after BOTS"), sc_after_tsms = DBOOL("SC after TSMS"),
-            sc_after_sbright = DBOOL("SC after SBright"), sc_after_bspd = DBOOL("SC after BSPD"), f_swimming_angle = DBOOL("Fuse Swimming Angle"),
-            f_brakelight = DBOOL("Fuse Brakelight"), sys_ready1 = DBOOL("Sys. Ready 1"), quit_hv1 = DBOOL("Quit HV 1"),
-            quit_rf1 = DBOOL("Quit RF 1"), warn_inv1 = DBOOL("Warn Inv 1"), sys_ready2 = DBOOL("Sys. Ready 2"), quit_hv2 = DBOOL("Quit HV 2"),
-            quit_rf2 = DBOOL("Quit RF 2"), warn_inv2 = DBOOL("Warn Inv 2"), sys_ready3 = DBOOL("Sys. Ready 3"), quit_hv3 = DBOOL("Quit HV 3"),
-            quit_rf3 = DBOOL("Quit RF 3"), warn_inv3 = DBOOL("Warn Inv 3"), sys_ready4 = DBOOL("Sys. Ready 4"), quit_hv4 = DBOOL("Quit HV 4"),
-            quit_rf4 = DBOOL("Quit RF 4"), warn_inv4 = DBOOL("Warn Inv 4");
+      String vehicle_state, ams_state, imd_state;
+      uint32_t HDOP, qual_fix, sattelites,
+          vehicle_mode, reku_brakeforce;
+      float soc, accu_vlt, cell_vlt_low,
+          cell_vlt_high, cell_temp_low,
+          cell_temp_high, voltage,
+          temp_mot_high, temp_mot_low,
+          temp_inv_high, temp_inv_low,
+          temp_ambient, odometer, iso_resistance,
+          torque_lim_pos, torque_lim_neg, power_lim,
+          rpm_lim, accel_slip, brake_slip;
+      bool sc_state, reku_state, config_lock,
+          asr, bsr, tv, energy_save, drs;
+      Inverter inverter[4]; // fr, fl, rr, rl
+      Fuses fuses;
+      SC sc;
+      Failure fail;
 };
 
 void parseSSBFReku(CAN_message_t &receivedMsg, VehicleState &state);

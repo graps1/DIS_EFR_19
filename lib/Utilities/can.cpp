@@ -157,38 +157,42 @@ void sendStatus()
 
 void parseVCUINV(CAN_message_t &receivedMsg, VehicleState &state)
 {
-    state.sys_ready1 = (receivedMsg.buf[0] & 0b10000000) >> 7;
-    state.quit_hv1 = (receivedMsg.buf[0] & 0b01000000) >> 6;
-    state.quit_rf1 = (receivedMsg.buf[0] & 0b00100000) >> 5;
-    state.warn_inv1 = (receivedMsg.buf[0] & 0b00010000) >> 4;
-    state.sys_ready2 = (receivedMsg.buf[0] & 0b00001000) >> 3;
-    state.quit_hv2 = (receivedMsg.buf[0] & 0b00000100) >> 2;
-    state.quit_rf2 = (receivedMsg.buf[0] & 0b00000010) >> 1;
-    state.warn_inv2 = receivedMsg.buf[0] & 0b00000001;
-    state.sys_ready3 = (receivedMsg.buf[1] & 0b10000000) >> 7;
-    state.quit_hv3 = (receivedMsg.buf[1] & 0b01000000) >> 6;
-    state.quit_rf3 = (receivedMsg.buf[1] & 0b00100000) >> 5;
-    state.warn_inv3 = (receivedMsg.buf[1] & 0b00010000) >> 4;
-    state.sys_ready4 = (receivedMsg.buf[1] & 0b00001000) >> 3;
-    state.quit_hv4 = (receivedMsg.buf[1] & 0b00000100) >> 2;
-    state.quit_rf4 = (receivedMsg.buf[1] & 0b00000010) >> 1;
-    state.warn_inv4 = receivedMsg.buf[1] & 0b00000001;
-    state.diagnosis_inv_1 = (receivedMsg.buf[2] << 4) + ((receivedMsg.buf[3] & 0b11110000) >> 4);
-    state.diagnosis_inv_2 = ((receivedMsg.buf[3] & 0b00001111) << 8) + receivedMsg.buf[4];
-    state.diagnosis_inv_3 = (receivedMsg.buf[5] << 4) + ((receivedMsg.buf[6] & 0b11110000) >> 4);
-    state.diagnosis_inv_4 = ((receivedMsg.buf[6] & 0b00001111) << 8) + receivedMsg.buf[7];
+    state.inverter[0].sys_ready = (receivedMsg.buf[0] & 0b10000000) >> 7;
+    state.inverter[0].quit_hv = (receivedMsg.buf[0] & 0b01000000) >> 6;
+    state.inverter[0].quit_rf = (receivedMsg.buf[0] & 0b00100000) >> 5;
+    state.inverter[0].warn = (receivedMsg.buf[0] & 0b00010000) >> 4;
+    
+    state.inverter[1].sys_ready = (receivedMsg.buf[0] & 0b00001000) >> 3;
+    state.inverter[1].quit_hv = (receivedMsg.buf[0] & 0b00000100) >> 2;
+    state.inverter[1].quit_rf = (receivedMsg.buf[0] & 0b00000010) >> 1;
+    state.inverter[1].warn = receivedMsg.buf[0] & 0b00000001;
+    
+    state.inverter[2].sys_ready = (receivedMsg.buf[1] & 0b10000000) >> 7;
+    state.inverter[2].quit_hv = (receivedMsg.buf[1] & 0b01000000) >> 6;
+    state.inverter[2].quit_rf = (receivedMsg.buf[1] & 0b00100000) >> 5;
+    state.inverter[2].warn = (receivedMsg.buf[1] & 0b00010000) >> 4;
+    
+    state.inverter[3].sys_ready = (receivedMsg.buf[1] & 0b00001000) >> 3;
+    state.inverter[3].quit_hv = (receivedMsg.buf[1] & 0b00000100) >> 2;
+    state.inverter[3].quit_rf = (receivedMsg.buf[1] & 0b00000010) >> 1;
+    state.inverter[3].warn = receivedMsg.buf[1] & 0b00000001;
+    
+    state.inverter[0].diagnosis = (receivedMsg.buf[2] << 4) + ((receivedMsg.buf[3] & 0b11110000) >> 4);
+    state.inverter[1].diagnosis = ((receivedMsg.buf[3] & 0b00001111) << 8) + receivedMsg.buf[4];
+    state.inverter[2].diagnosis = (receivedMsg.buf[5] << 4) + ((receivedMsg.buf[6] & 0b11110000) >> 4);
+    state.inverter[3].diagnosis = ((receivedMsg.buf[6] & 0b00001111) << 8) + receivedMsg.buf[7];
 }
 
 void parseVCUTemps(CAN_message_t &receivedMsg, VehicleState &state)
 {
-    state.temp_mot_fr = receivedMsg.buf[0] - 20;
-    state.temp_mot_fl = receivedMsg.buf[1] - 20;
-    state.temp_mot_rr = receivedMsg.buf[2] - 20;
-    state.temp_mot_rl = receivedMsg.buf[3] - 20;
-    state.temp_inv_fr = receivedMsg.buf[4] - 20;
-    state.temp_inv_fl = receivedMsg.buf[5] - 20;
-    state.temp_inv_rr = receivedMsg.buf[6] - 20;
-    state.temp_inv_rl = receivedMsg.buf[7] - 20;
+    state.inverter[0].temp_mot = receivedMsg.buf[0] - 20;
+    state.inverter[1].temp_mot = receivedMsg.buf[1] - 20;
+    state.inverter[2].temp_mot = receivedMsg.buf[2] - 20;
+    state.inverter[3].temp_mot = receivedMsg.buf[3] - 20;
+    state.inverter[0].temp_inv = receivedMsg.buf[4] - 20;
+    state.inverter[1].temp_inv= receivedMsg.buf[5] - 20;
+    state.inverter[2].temp_inv= receivedMsg.buf[6] - 20;
+    state.inverter[3].temp_inv= receivedMsg.buf[7] - 20;
 }
 
 void parseVCUParam(CAN_message_t &receivedMsg, VehicleState &state)
@@ -199,7 +203,7 @@ void parseVCUParam(CAN_message_t &receivedMsg, VehicleState &state)
     state.rpm_lim = (receivedMsg.buf[3] << 8) + receivedMsg.buf[4];
     state.accel_slip = receivedMsg.buf[5];
     state.brake_slip = receivedMsg.buf[6];
-    state.vehicle_mode = vehicle_mode[(receivedMsg.buf[7] & 0b11100000) >> 5];
+    state.vehicle_state = vehicle_mode[(receivedMsg.buf[7] & 0b11100000) >> 5];
     state.asr = (receivedMsg.buf[7] & 0b00010000) >> 4;
     state.bsr = (receivedMsg.buf[7] & 0b00001000) >> 3;
     state.tv = (receivedMsg.buf[7] & 0b00000100) >> 2;
@@ -209,25 +213,25 @@ void parseVCUParam(CAN_message_t &receivedMsg, VehicleState &state)
 
 void parsePDU(CAN_message_t &receivedMsg, VehicleState &state)
 {
-    state.f_fan_inv = (receivedMsg.buf[2] & 0b1) || ((receivedMsg.buf[2] & 0b10) >> 1);
-    state.f_drs = (receivedMsg.buf[2] & 0b01000000) >> 6;
-    state.f_fan_mot = (receivedMsg.buf[2] & 0b10000000) >> 7;
-    state.f_swimming_angle = (receivedMsg.buf[1] & 0b1);
-    state.f_rtds = (receivedMsg.buf[1] & 0b10000) >> 4;
-    state.f_brakelight = (receivedMsg.buf[1] & 0b100000) >> 5;
-    state.f_pump_mot = (receivedMsg.buf[0] & 0b1);
-    state.f_ssb = (receivedMsg.buf[0] & 0b10) >> 1;
-    state.f_imd = (receivedMsg.buf[0] & 0b100) >> 2;
-    state.f_inv = (receivedMsg.buf[0] & 0b1000) >> 3;
-    state.f_vcu = (receivedMsg.buf[0] & 0b100000) >> 5;
-    state.f_sc = (receivedMsg.buf[0] & 0b1000000) >> 6;
+    state.fuses.fan_inv = (receivedMsg.buf[2] & 0b1) || ((receivedMsg.buf[2] & 0b10) >> 1);
+    state.fuses.drs = (receivedMsg.buf[2] & 0b01000000) >> 6;
+    state.fuses.fan_mot = (receivedMsg.buf[2] & 0b10000000) >> 7;
+    state.fuses.swimming_angle = (receivedMsg.buf[1] & 0b1);
+    state.fuses.rtds = (receivedMsg.buf[1] & 0b10000) >> 4;
+    state.fuses.brakelight = (receivedMsg.buf[1] & 0b100000) >> 5;
+    state.fuses.pump_mot = (receivedMsg.buf[0] & 0b1);
+    state.fuses.ssb = (receivedMsg.buf[0] & 0b10) >> 1;
+    state.fuses.imd = (receivedMsg.buf[0] & 0b100) >> 2;
+    state.fuses.inv = (receivedMsg.buf[0] & 0b1000) >> 3;
+    state.fuses.vcu = (receivedMsg.buf[0] & 0b100000) >> 5;
+    state.fuses.sc = (receivedMsg.buf[0] & 0b1000000) >> 6;
     state.imd_state = imd_state[(receivedMsg.buf[4] & 0b11100000) >> 5];
     state.iso_resistance = (receivedMsg.buf[5] << 8) + receivedMsg.buf[6];
 }
 
 void parseSSBFReku(CAN_message_t &receivedMsg, VehicleState &state)
 {
-    state.sc_after_bots = receivedMsg.buf[2] & 0b00000001;
+    state.sc.after_bots = receivedMsg.buf[2] & 0b00000001;
     state.reku_brakeforce = (receivedMsg.buf[0] << 8) + receivedMsg.buf[1]; // Kalibrierung fehlt!
 }
 
@@ -238,16 +242,16 @@ void parseSSBR(CAN_message_t &receivedMsg, VehicleState &state)
     // Bei den folgenden Drei werden nur boolsche Werte ausgelesen,
     // allerdings unklar welches bit jetzt wo ist, da in der CAN-Übersicht
     // das komplette Byte als "Inhalt" markiert ist.
-    state.sc_after_tsms = receivedMsg.buf[3];
-    state.sc_after_bspd = receivedMsg.buf[4];
-    state.sc_after_sbright = receivedMsg.buf[5];
+    state.sc.after_tsms = receivedMsg.buf[3];
+    state.sc.after_bspd = receivedMsg.buf[4];
+    state.sc.after_sb_right = receivedMsg.buf[5];
     state.temp_ambient = (receivedMsg.buf[6] << 8) + receivedMsg.buf[7]; // Kalibrierung fehlt!
 }
 
 void parseAmsMsg(CAN_message_t &receivedMsg, VehicleState &state)
 {
     state.ams_state = ams_state[(receivedMsg.buf[0] & 0b11100000) >> 5];
-    state.sc_state = (receivedMsg.buf[0] & 0b00010000) >> 4;
+    state.sc.state = (receivedMsg.buf[0] & 0b00010000) >> 4;
     state.accu_vlt = 0.2 * (((receivedMsg.buf[0] & 0b00001111) << 8) + (receivedMsg.buf[1]));
     state.soc = 0.392157 * (receivedMsg.buf[2]);
     state.cell_vlt_high = 0.001 * ((receivedMsg.buf[3] << 4) + ((receivedMsg.buf[4] & 0b11110000) >> 4)) + 1;
@@ -283,33 +287,33 @@ void parseGpsOdo(CAN_message_t &receivedMsg, VehicleState &state)
 
 void parseVCUErrors(CAN_message_t &receivedMsg, VehicleState &state)
 {
-    state.can_pedals = (receivedMsg.buf[0] & 0b10000000) >> 7;
-    state.can_reku = (receivedMsg.buf[0] & 0b01000000) >> 6;
-    state.can_gps = (receivedMsg.buf[0] & 0b00100000) >> 5;
-    state.can_acc = (receivedMsg.buf[0] & 0b00010000) >> 4;
-    state.can_rot = (receivedMsg.buf[0] & 0b00001000) >> 3;
-    state.can_mag = (receivedMsg.buf[0] & 0b00000100) >> 2;
-    state.can_rear = (receivedMsg.buf[0] & 0b00000010) >> 1;
-    state.can_ams = receivedMsg.buf[0] & 0b00000001;
-    state.can_em = (receivedMsg.buf[1] & 0b10000000) >> 7;
-    state.can_pdu = (receivedMsg.buf[1] & 0b01000000) >> 6;
-    state.can_dis = (receivedMsg.buf[1] & 0b00100000) >> 5;
-    state.can_inv_fr = (receivedMsg.buf[1] & 0b00010000) >> 4;
-    state.can_inv_fl = (receivedMsg.buf[1] & 0b00001000) >> 3;
-    state.can_inv_rr = (receivedMsg.buf[1] & 0b00000100) >> 2;
-    state.can_inv_rl = (receivedMsg.buf[1] & 0b00000010) >> 1;
-    state.pedals_impl = (receivedMsg.buf[2] & 0b10000000) >> 7;
-    state.apps_impl = (receivedMsg.buf[2] & 0b01000000) >> 6;
-    state.apps1 = (receivedMsg.buf[2] & 0b00100000) >> 5;
-    state.apps2 = (receivedMsg.buf[2] & 0b00010000) >> 4;
-    state.bps_f = (receivedMsg.buf[2] & 0b00001000) >> 3;
-    state.bps_r = (receivedMsg.buf[2] & 0b00000100) >> 2;
-    state.brakeforce = (receivedMsg.buf[2] & 0b00000010) >> 1;
-    state.steer_angle = receivedMsg.buf[2] & 0b00000001;
-    state.acc_x = (receivedMsg.buf[3] & 0b10000000) >> 7;
-    state.acc_y = (receivedMsg.buf[3] & 0b01000000) >> 6;
-    state.rot_z = (receivedMsg.buf[3] & 0b00100000) >> 5;
-    state.gps_v = (receivedMsg.buf[3] & 0b00010000) >> 4;
+    state.fail.can_pedals = (receivedMsg.buf[0] & 0b10000000) >> 7;
+    state.fail.can_reku = (receivedMsg.buf[0] & 0b01000000) >> 6;
+    state.fail.can_gps = (receivedMsg.buf[0] & 0b00100000) >> 5;
+    state.fail.can_acc = (receivedMsg.buf[0] & 0b00010000) >> 4;
+    state.fail.can_rot = (receivedMsg.buf[0] & 0b00001000) >> 3;
+    state.fail.can_mag = (receivedMsg.buf[0] & 0b00000100) >> 2;
+    state.fail.can_rear = (receivedMsg.buf[0] & 0b00000010) >> 1;
+    state.fail.can_ams = receivedMsg.buf[0] & 0b00000001;
+    state.fail.can_em = (receivedMsg.buf[1] & 0b10000000) >> 7;
+    state.fail.can_pdu = (receivedMsg.buf[1] & 0b01000000) >> 6;
+    state.fail.can_dis = (receivedMsg.buf[1] & 0b00100000) >> 5;
+    state.inverter[0].can_fail = (receivedMsg.buf[1] & 0b00010000) >> 4;
+    state.inverter[1].can_fail = (receivedMsg.buf[1] & 0b00001000) >> 3;
+    state.inverter[2].can_fail = (receivedMsg.buf[1] & 0b00000100) >> 2;
+    state.inverter[3].can_fail = (receivedMsg.buf[1] & 0b00000010) >> 1;
+    state.fail.impl_pedals = (receivedMsg.buf[2] & 0b10000000) >> 7;
+    state.fail.impl_apps = (receivedMsg.buf[2] & 0b01000000) >> 6;
+    state.fail.apps1 = (receivedMsg.buf[2] & 0b00100000) >> 5;
+    state.fail.apps2 = (receivedMsg.buf[2] & 0b00010000) >> 4;
+    state.fail.bps_f = (receivedMsg.buf[2] & 0b00001000) >> 3;
+    state.fail.bps_r = (receivedMsg.buf[2] & 0b00000100) >> 2;
+    state.fail.brakeforce = (receivedMsg.buf[2] & 0b00000010) >> 1;
+    state.fail.steer_angle = receivedMsg.buf[2] & 0b00000001;
+    state.fail.acc_x = (receivedMsg.buf[3] & 0b10000000) >> 7;
+    state.fail.acc_y = (receivedMsg.buf[3] & 0b01000000) >> 6;
+    state.fail.rot_z = (receivedMsg.buf[3] & 0b00100000) >> 5;
+    state.fail.gps_v = (receivedMsg.buf[3] & 0b00010000) >> 4;
 }
 
 #pragma endregion
