@@ -6,20 +6,45 @@ namespace CAN
 
 FlexCAN can = FlexCAN(1000000);
 VehicleState state;
-CAN_filter_t    ams_f, 
-                VCUcontrol_f, 
-                Gps_f, 
-                EmVlt_f, 
-                SSBR_f, 
-                GpsOdo_f, 
-                PDU_f, 
-                VCUtoDIS_f, 
-                mask;
-                
-CAN_message_t   dis,
-                dis_parameter;
+CAN_filter_t ams_f,
+    VCUcontrol_f,
+    Gps_f,
+    EmVlt_f,
+    SSBR_f,
+    GpsOdo_f,
+    PDU_f,
+    VCUtoDIS_f,
+    mask;
 
-void init() {
+CAN_message_t dis,
+    dis_parameter;
+
+String ams_state[8] = {"Idle",
+                       "Precharging",
+                       "Drive",
+                       "reserved",
+                       "PrechFail",
+                       "Data Error",
+                       "Relays Stuck",
+                       "reserved"};
+
+String vehicle_mode[6] = {"Testing",
+                          "Scruti",
+                          "Accel",
+                          "Skidpad",
+                          "AutoX",
+                          "Endurance"};
+
+String imd_state[7] = {"IMD aus",
+                       "PWMfail",
+                       "Normal",
+                       "Unterspannung",
+                       "Good",
+                       "Bad",
+                       "Fail"};
+
+void init()
+{
     // CAN Filter setzen
     mask.id = 0xFF3;
 
@@ -32,7 +57,6 @@ void init() {
     GpsOdo_f.id = 0x143;
     PDU_f.id = 0x201;
     VCUtoDIS_f.id = 0x210;
-
 
     dis.id = 0x41;
     dis.len = 4;
@@ -108,12 +132,14 @@ VehicleState check()
     return state;
 }
 
-bool paramChanged() {
+bool paramChanged()
+{
     // todo
     return false;
 }
 
-void sendParam() {
+void sendParam()
+{
     // todo
 }
 
@@ -173,7 +199,7 @@ void parseVCUParam(CAN_message_t &receivedMsg, VehicleState &state)
     state.rpm_lim = (receivedMsg.buf[3] << 8) + receivedMsg.buf[4];
     state.accel_slip = receivedMsg.buf[5];
     state.brake_slip = receivedMsg.buf[6];
-    state.vehicle_mode = (receivedMsg.buf[7] & 0b11100000) >> 5;
+    state.vehicle_mode = vehicle_mode[(receivedMsg.buf[7] & 0b11100000) >> 5];
     state.asr = (receivedMsg.buf[7] & 0b00010000) >> 4;
     state.bsr = (receivedMsg.buf[7] & 0b00001000) >> 3;
     state.tv = (receivedMsg.buf[7] & 0b00000100) >> 2;
@@ -195,7 +221,7 @@ void parsePDU(CAN_message_t &receivedMsg, VehicleState &state)
     state.f_inv = (receivedMsg.buf[0] & 0b1000) >> 3;
     state.f_vcu = (receivedMsg.buf[0] & 0b100000) >> 5;
     state.f_sc = (receivedMsg.buf[0] & 0b1000000) >> 6;
-    state.imd_state = (receivedMsg.buf[4] & 0b11100000) >> 5;
+    state.imd_state = imd_state[(receivedMsg.buf[4] & 0b11100000) >> 5];
     state.iso_resistance = (receivedMsg.buf[5] << 8) + receivedMsg.buf[6];
 }
 
@@ -220,7 +246,7 @@ void parseSSBR(CAN_message_t &receivedMsg, VehicleState &state)
 
 void parseAmsMsg(CAN_message_t &receivedMsg, VehicleState &state)
 {
-    state.ams_state = (receivedMsg.buf[0] & 0b11100000) >> 5;
+    state.ams_state = ams_state[(receivedMsg.buf[0] & 0b11100000) >> 5];
     state.sc_state = (receivedMsg.buf[0] & 0b00010000) >> 4;
     state.accu_vlt = 0.2 * (((receivedMsg.buf[0] & 0b00001111) << 8) + (receivedMsg.buf[1]));
     state.soc = 0.392157 * (receivedMsg.buf[2]);
