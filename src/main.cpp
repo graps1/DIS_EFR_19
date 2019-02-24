@@ -14,15 +14,17 @@ Metro	timer_display = Metro(100),
 
 menu::Menu* currentMenu;
 TLC59116 leds = TLC59116(ADDR_LEDs);
-CAN::VehicleState current_vehicle_state;
+CAN::VehicleState cvs;
 
 #pragma region MENU_DEFINITION
 
-menu::Menu mainMenu([] { 
-	String content[4] = { "hallo", "welt", "das ist", "das hauptmenu" };
-	display::setContent(content, 4);
-}, [] {
-	return menu::SelectType::FirstChild;
+menu::Menu mainMenu([] {
+	display::setContent(
+		"Main",
+		cvs.vehicle_mode.str(),
+		cvs.ams_state.str(),
+		display::fit(cvs.soc.str(), cvs.voltage.str())
+	);
 });
 
 #pragma endregion
@@ -40,7 +42,7 @@ void setup() {
 
 void loop()
 {
-	current_vehicle_state = CAN::check();
+	cvs = CAN::check();
 
 	if (timer_display.check()) {
 		// change the menu if a specific button was pressed
@@ -55,5 +57,5 @@ void loop()
 		CAN::sendStatus();
 
 	if (timer_dis_param_can.check() && CAN::paramChanged())
-			CAN::sendParam();
+		CAN::sendParam();
 }
