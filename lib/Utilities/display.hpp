@@ -5,13 +5,18 @@
 #include "menu.hpp"
 
 #define CLEAR "                     "
-#define NO_LINES 4
 
 
 namespace display
 {
-    void setContent(String content[], int arrlen);
+    void setContent(
+        String _1 = CLEAR, 
+        String _2 = CLEAR, 
+        String _3 = CLEAR, 
+        String _4 = CLEAR
+    );
     void updateScreen();
     String getContent();
     void init();
+    String fit(String a, String b);
 } // namespace display
