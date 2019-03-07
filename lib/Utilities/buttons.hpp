@@ -10,8 +10,8 @@
 #define Button_4 5
 #define Button_5 6
 #define Button_6 13
-#define Poti_1 14
-#define Poti_2 15
+#define Poti_1 16
+#define Poti_2 17
 
 namespace buttons {
 
@@ -31,14 +31,18 @@ union ButtonsToBit {
 	};
 };
 
+struct ButtonsToBitStamped {
+	ButtonsToBit btns;
+	int stamp_millis;
+};
+
 void initButtons();
 
-ButtonsToBit getCurrentState();
 uint16_t getPoti(uint8_t poti);
 
-void updateButtonStates(
-	ButtonsToBit* buttons, 
-	ButtonsToBit* buttons_up, 
-	ButtonsToBit* buttons_down);
-
+void updateButtonStates();
+void getButtonStates(
+	ButtonsToBitStamped* buttons = NULL, 
+	ButtonsToBitStamped* buttons_up = NULL, 
+	ButtonsToBitStamped* buttons_down = NULL);
 }

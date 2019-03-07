@@ -18,5 +18,6 @@ namespace display
     void updateScreen();
     String getContent();
     void init();
-    String fit(String a, String b);
+    String fit(String a, String b, bool maximize_distance=false);
+    String alignRight(String a);
 } // namespace display

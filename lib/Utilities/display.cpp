@@ -15,17 +15,34 @@ void init()
 }
 
 // Tries to fit two strings as best as possible into the same line
-String fit(String a, String b)
+String fit(String a, String b, bool maximize_distance)
 {
     int al = a.length(), bl = b.length();
-    if (al < SCREEN_LENGTH * 0.5 && bl < SCREEN_LENGTH * 0.5)
-    {
-        for (int i = al; i < SCREEN_LENGTH * 0.5; i++)
-            a += " ";
-        return a + b;
+    if (maximize_distance) {
+        String tmp = a;
+        for (int i=0; i<SCREEN_LENGTH - al - bl; i++) {
+            tmp += " ";
+        }
+        return tmp + b;
+    } else {
+        if (al < SCREEN_LENGTH * 0.5 && bl <= SCREEN_LENGTH * 0.5)
+        {
+            for (int i = al; i <= SCREEN_LENGTH * 0.5; i++)
+                a += " ";
+            return a + b;
+        }
+        return a + " " + b;
     }
-    return a + " " + b;
 }
+
+String alignRight(String a) {
+    String tmp = a;
+    for (int i=0; i<SCREEN_LENGTH-a.length();i++) {
+        tmp = " " + tmp;
+    }
+    return tmp;
+}
+
 
 void setContent(String _1, String _2, String _3, String _4)
 {

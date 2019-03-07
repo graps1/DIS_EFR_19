@@ -2,6 +2,10 @@
 
 namespace buttons {
 
+ButtonsToBitStamped 	_buttons, 
+						_buttons_up, 
+						_buttons_down;
+
 void initButtons() {
 	pinMode(Button_1, INPUT);
 	pinMode(Button_2, INPUT);
@@ -28,15 +32,34 @@ ButtonsToBit getCurrentState() {
 	return current_btn_state;
 }
 
-void updateButtonStates(
-	ButtonsToBit* buttons, 
-	ButtonsToBit* buttons_up, 
-	ButtonsToBit* buttons_down)
-{
+void updateButtonStates() {
 	ButtonsToBit next_btn_state = getCurrentState();
-	buttons_up->buf = buttons->buf & ~next_btn_state.buf;
-	buttons_down->buf = next_btn_state.buf & ~buttons->buf;
-	*buttons = next_btn_state;
+
+	if (_buttons_up.btns.buf != (_buttons.btns.buf & ~next_btn_state.buf)) {
+		_buttons_up.btns.buf = _buttons.btns.buf & ~next_btn_state.buf;
+		_buttons_up.stamp_millis = millis();
+	}
+	
+	if (_buttons_down.btns.buf != (next_btn_state.buf & ~_buttons.btns.buf)) {
+		_buttons_down.btns.buf = next_btn_state.buf & ~_buttons.btns.buf;
+		_buttons_down.stamp_millis = millis();
+	}
+
+	if (_buttons.btns.buf != next_btn_state.buf) {
+		_buttons.btns.buf = next_btn_state.buf;
+		_buttons.stamp_millis = millis();
+	}
+}
+
+
+void getButtonStates(
+	ButtonsToBitStamped* buttons, 
+	ButtonsToBitStamped* buttons_up, 
+	ButtonsToBitStamped* buttons_down)
+{
+	if (buttons) *buttons = _buttons;
+	if (buttons_up) *buttons_up = _buttons_up;
+	if (buttons_down) *buttons_down = _buttons_down;
 }
 
 uint16_t getPoti(uint8_t poti) {

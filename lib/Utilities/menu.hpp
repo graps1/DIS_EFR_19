@@ -3,13 +3,13 @@
 #include "Metro.h"
 #include "Arduino.h"
 
-#define MENU_IDLE_TIMEOUT 5000
+#define MENU_IDLE_TIMEOUT 25000
 
 namespace menu
 {
 
-
-enum SelectType {
+enum SelectType
+{
 	FirstChild,
 	Parent,
 	Root,
@@ -27,11 +27,12 @@ class Menu
 
   public:
 	Menu(void (*display)(),
-		 SelectType (*on_select)() = [] { return SelectType::Default; },
-		 Menu *parent = NULL);
+		 Menu *parent = NULL,
+		 SelectType (*on_select)() = [] { return SelectType::FirstChild; });
 
 	Menu *select();
 	void addSubmenu(Menu *menu);
+	void addNeighbour(Menu *menu);
 	Menu *root();
 	Menu *getParent();
 	Menu *advance();

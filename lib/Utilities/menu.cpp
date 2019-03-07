@@ -4,9 +4,8 @@
 namespace menu {
 
 Metro menu_idle_timeout_tmr = Metro(MENU_IDLE_TIMEOUT);
-buttons::ButtonsToBit buttons, buttons_up, buttons_down;
 
-Menu::Menu(void (*display)(), SelectType (*on_select)(), Menu *parent)
+Menu::Menu(void (*display)(), Menu *parent, SelectType (*on_select)())
 {
 	this->_display = display;
 	this->_on_select = on_select;
@@ -16,6 +15,7 @@ Menu::Menu(void (*display)(), SelectType (*on_select)(), Menu *parent)
 	if (this->hasParent())
 		this->parent->addSubmenu(this);
 }
+
 
 Menu* Menu::select()
 {
@@ -52,6 +52,14 @@ void Menu::addSubmenu(Menu *menu)
 	menu->parent = this;
 }
 
+// Fügt einen Nachbarn hinzu, der sich nach der Operation direkt (rechts)
+// neben dem Menü befindet. 
+void Menu::addNeighbour(Menu *menu) {
+	menu->neighbour = neighbour;
+	neighbour = menu;
+	menu->parent = parent;
+}
+
 Menu* Menu::root()
 {
     Menu *target = this;
@@ -64,27 +72,31 @@ Menu* Menu::root()
 
 Menu* Menu::getParent()
 {
-    return this->parent;
+	return this->parent ? this->parent : this;
 }
 
 Menu* Menu::update()
 {
-	buttons::updateButtonStates(&buttons, &buttons_up, &buttons_down);
+	buttons::ButtonsToBitStamped buttons, buttons_up;
+	buttons::getButtonStates(&buttons, &buttons_up);
 
-	bool ok = buttons.LR1;
-	bool next = buttons.LR2;
-	bool ret = buttons.LR3;
-	bool next_up = buttons_up.LR2;
-	bool ok_up = buttons_up.LR1;
+	bool ok = buttons.btns.LR1;
+	bool next = buttons.btns.LR2;
+	bool ret_up = buttons_up.btns.LR3;
+	bool next_up = buttons_up.btns.LR2;
+	bool ok_up = buttons_up.btns.LR1;
 
-    if (ok || next)
+	bool neg = buttons.btns.LR4;
+	bool pos = buttons.btns.LR5;
+
+    if (neg || pos || ok || next)
         menu_idle_timeout_tmr.reset();
 
-    if (ret)
+    if (ret_up)
         return getParent();
 
-    if (menu_idle_timeout_tmr.check())
-        return root();
+    //  if (menu_idle_timeout_tmr.check())
+     //  	return root();
 
     if (next_up)
         return advance();
