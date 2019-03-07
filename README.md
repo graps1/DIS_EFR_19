@@ -9,6 +9,7 @@ Grundsätzlich soll...
 * ausführliches Refactoring vorgenommen- & die Menüführung deutlich strukturierter und einfacher gestalten werden.
 * es leicht sein, die Reihenfolge der Menüs zu vertauschen, deren Struktur umzustellen oder diese beliebig zu verschachteln.
 * ein "Push"-System entwickelt werden, mit dem am Ende wichtige Ereignisse (Fehler, Grenzwertüberschreitungen etc.) direkt sichtbar gemacht werden.
+* verschiedene Parameter von dem DIS aus anpassbar sein.
 
 ## Steuerung
 
