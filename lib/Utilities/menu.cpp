@@ -80,14 +80,14 @@ Menu* Menu::update()
 	buttons::ButtonsToBitStamped buttons, buttons_up;
 	buttons::getButtonStates(&buttons, &buttons_up);
 
-	bool ok = buttons.btns.LR1;
-	bool next = buttons.btns.LR2;
-	bool ret_up = buttons_up.btns.LR3;
-	bool next_up = buttons_up.btns.LR2;
-	bool ok_up = buttons_up.btns.LR1;
+	bool ok = buttons::getOKBtn(buttons.btns);
+	bool next = buttons::getNextBtn(buttons.btns);
+	bool ret_up = buttons::getRetBtn(buttons_up.btns);
+	bool next_up = buttons::getNextBtn(buttons_up.btns);
+	bool ok_up = buttons::getOKBtn(buttons_up.btns);
 
-	bool neg = buttons.btns.LR4;
-	bool pos = buttons.btns.LR5;
+	bool neg = buttons::getNegBtn(buttons.btns);
+	bool pos = buttons::getPosBtn(buttons.btns);
 
     if (neg || pos || ok || next)
         menu_idle_timeout_tmr.reset();

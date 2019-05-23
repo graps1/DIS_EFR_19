@@ -141,14 +141,14 @@ void callConfigFunction(
 {
 	buttons::ButtonsToBitStamped btns, btns_down;
 	buttons::getButtonStates(&btns, NULL, &btns_down);
-	bool neg = btns_down.btns.LR4;
-	bool pos = btns_down.btns.LR5;
+	int neg = buttons::getNegBtn(btns_down.btns);
+	int pos = buttons::getPosBtn(btns_down.btns);
 
 	// check if the buttons are still pressed
 	if (millis() - btns_down.stamp_millis > 1500)
 	{
-		neg = btns.btns.LR4;
-		pos = btns.btns.LR5;
+		neg = buttons::getNegBtn(btns.btns);
+		pos = buttons::getPosBtn(btns.btns);
 	}
 
 	if (neg)
@@ -183,9 +183,14 @@ menu::Menu disMain([] {
 	buttons::ButtonsToBitStamped btns;
 	buttons::getButtonStates(&btns);
 
+	String buttons_bin = String(btns.btns.buf, BIN);
+	for ( int i=buttons_bin.length(); i<9; i++)
+		buttons_bin = "0"+buttons_bin;
+
 	String poti_1 = "PT1 " + String(buttons::getPoti(1)),
 		   poti_2 = "PT2 " + String(buttons::getPoti(2)),
-		   buttons_str = "BTN " + String(btns.btns.buf, BIN);
+		   buttons_str = "BTN " + buttons_bin;
+
 
 	display::setContent(
 		"DIS",
@@ -267,7 +272,7 @@ void loop()
 		buttons::getButtonStates(&btns);
 
 		// LR6 == Toggle Failure Menu
-		if (btns.btns.LR6)
+		if (buttons::getFailBtn(btns.btns))
 		{
 			pushmsg::getFailureMenu()->display();
 		}

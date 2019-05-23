@@ -13,9 +13,9 @@ void initButtons() {
 	pinMode(Button_4, INPUT);
 	pinMode(Button_5, INPUT);
 	pinMode(Button_6, INPUT);
-	pinMode(Button_HV, INPUT_PULLUP);
+	pinMode(Button_HV, INPUT);
 	pinMode(Button_Reku, INPUT);
-	pinMode(Button_Start, INPUT_PULLUP);
+	pinMode(Button_Start, INPUT);
 }
 
 ButtonsToBit getCurrentState() {
@@ -78,5 +78,13 @@ uint16_t getPoti(uint8_t poti) {
 
 	return analogRead(pin) / 4;
 }
+
+
+int getNegBtn(ButtonsToBit buttons) { return buttons.LR5; }
+int getPosBtn(ButtonsToBit buttons) { return buttons.LR1; }
+int getNextBtn(ButtonsToBit buttons) { return buttons.LR6; }
+int getOKBtn(ButtonsToBit buttons) { return buttons.LR2; }
+int getFailBtn(ButtonsToBit buttons) { return buttons.LR4; }
+int getRetBtn(ButtonsToBit buttons) { return buttons.LR3; }
 
 }
