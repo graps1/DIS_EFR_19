@@ -166,7 +166,7 @@ void callConfigFunction(
 		display::alignRight("[+-" + String(sb->getIncr()) + " " + unit + "]"));
 }
 
-menu::Menu configVehicleMode([] { callConfigFunction<uint8_t>("Vehicle Mode", &cvs->vehicle_mode, "", vehicleModeStr); }, &configMain);
+menu::Menu configVehicleMode([] { callConfigFunction<uint8_t>("Vehicle Mode", &cvs->vehicle_mode, "", vehicleModeStr); }, &menuMain);
 menu::Menu configTorqueLimPos([] { callConfigFunction<double>("Torque Lim+", &cvs->torque_lim_pos, "Nm"); }, &configMain);
 menu::Menu configTorqueLimNeg([] { callConfigFunction<double>("Torque Lim-", &cvs->torque_lim_neg, "Nm"); }, &configMain);
 menu::Menu configPowerLim([] { callConfigFunction<uint8_t>("Power Lim", &cvs->power_lim, "kW"); }, &configMain);
