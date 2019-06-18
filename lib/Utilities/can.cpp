@@ -225,6 +225,7 @@ void parseVCUParam(CAN_message_t &receivedMsg, VehicleState *state)
     state->tv.setCurrentVal( (receivedMsg.buf[7] & 0b00000100) >> 2 );
     state->energy_save.setCurrentVal( (receivedMsg.buf[7] & 0b00000010) >> 1 );
     state->drs.setCurrentVal( receivedMsg.buf[7] & 0b00000001 );
+    state->initial_parameters_received = true;
 }
 
 void parsePDU(CAN_message_t &receivedMsg, VehicleState *state)

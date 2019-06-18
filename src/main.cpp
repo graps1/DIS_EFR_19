@@ -32,7 +32,7 @@ menu::Menu menuMain([] {
 	display::setContent(
 		display::fit("Main", vs, true),
 		vm,
-		display::fit("AMS " + amsStr(cvs->ams_state),"SC " + SCStateStr(cvs->sc.state)),
+		display::fit("AMS " + amsStr(cvs->ams_state),"SC " + boolStrOnOff(cvs->sc.state)),
 		display::fit(soc, voltage));
 });
 
@@ -288,7 +288,7 @@ void loop()
 		display::updateScreen();
 	}
 
-	if (timer_dis_param_can.check() /* && CAN::paramChanged() */)
+	if (timer_dis_param_can.check() && CAN::getVehicleState()->initial_parameters_received /* && CAN::paramChanged() */)
 		CAN::sendParam();
 	if (timer_dis_can.check())
 		CAN::sendStatus();

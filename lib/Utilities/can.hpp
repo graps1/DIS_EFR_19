@@ -123,7 +123,7 @@ struct VehicleState
             vehicle_mode = SU8(0, 1, 5, 0);
       SD    torque_lim_pos = SD(0, 0.2, 21, 0), 
             torque_lim_neg = SD(0, 0.2, 21, 0);
-      bool sc_state, reku_state, config_lock;
+      bool sc_state, reku_state, config_lock, initial_parameters_received;
 
       Inverter inverter[4]; // fr, fl, rr, rl
       Fuses fuses;
