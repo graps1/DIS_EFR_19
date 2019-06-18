@@ -32,7 +32,7 @@ menu::Menu menuMain([] {
 	display::setContent(
 		display::fit("Main", vs, true),
 		vm,
-		"AMS " + amsStr(cvs->ams_state),
+		display::fit("AMS " + amsStr(cvs->ams_state),"SC " + SCStateStr(cvs->sc.state)),
 		display::fit(soc, voltage));
 });
 
@@ -222,15 +222,15 @@ void updateLEDs()
 	String ams = amsStr(cvs->ams_state);
 	String vs = vehicleStateStr(cvs->vehicle_state);
 
-	uint8_t vcu_led = 0;
-	uint8_t drive_led = vehicleStateStr(cvs->vehicle_state) == "Error";
+	uint8_t drive_led = 0;
+	uint8_t vcu_led = vehicleStateStr(cvs->vehicle_state) == "Error";
 	uint8_t reku_led = cvs->reku_state;
 
 	if (ams == "Drive")
 		if (vs == "Drive")
-			vcu_led = 0b01;
+			drive_led = 0b01;
 		else if (vs != "Error")
-			vcu_led = 0b11; // second bit -> blinking
+			drive_led = 0b11; // second bit -> blinking
 
 	leds.setStates(drive_led, reku_led, vcu_led /*funktioniert bei einem display nicht*/, 1000);
 }
